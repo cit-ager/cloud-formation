@@ -1,0 +1,94 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  STUDENTVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: 'false'
+      EnableDnsHostnames: 'false'
+      InstanceTenancy: default
+      Tags:
+      - Key: Name
+        Value: Student-VPC
+
+  SubnetPrivAZ1a:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: STUDENTVPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: "us-east-1a"
+      Tags:
+      - Key: Name
+        Value: Subnet-Priv-AZ-1a
+
+  SubnetPubAZ1b:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: STUDENTVPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: "us-east-1b"
+      Tags:
+      - Key: Name
+        Value: Subnet-Pub-AZ-1b
+
+  StudentIGW:
+    Type: "AWS::EC2::InternetGateway"
+    Properties:
+      Tags:
+      - Key: Name
+        Value: StudentIGW
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: STUDENTVPC
+      InternetGatewayId:
+        Ref: StudentIGW
+
+  SubnetPrivAZ1aRT:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: STUDENTVPC
+      Tags:
+      - Key: Name
+        Value: Subnet-Priv-AZ1a-RT
+
+  SubnetPubAZ1bRT:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: STUDENTVPC
+      Tags:
+      - Key: Name
+        Value: Subnet-Pub-AZ1b-RT
+
+  RouteaddPub:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: SubnetPubAZ1bRT
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: StudentIGW
+
+  SubnetAssocPub:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: SubnetPubAZ1b
+      RouteTableId:
+        Ref: SubnetPubAZ1bRT
+  
+  SubnetAssocPriv:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: SubnetPrivAZ1a
+      RouteTableId:
+        Ref: SubnetPrivAZ1aRT
+
+  
