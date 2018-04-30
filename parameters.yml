@@ -1,0 +1,34 @@
+Parameters: 
+  InstanceTypeParameter: 
+    Type: String
+    Default: t2.micro
+    AllowedValues: 
+      - t2.micro
+      - m1.small
+      - m1.large
+    Description: Enter t2.micro, m1.small, or m1.large. Default is t2.micro.
+
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Provide Keyname
+
+  Subnets:
+    Type: String
+    Description: Select a Subnet
+
+Resources:
+  Ec2Instance: 
+    Type: "AWS::EC2::Instance"
+    Properties: 
+      ImageId: "ami-6871a115"
+      InstanceType: 
+        Ref: InstanceTypeParameter
+      SubnetId: 
+        Ref: Subnets
+      Tags:
+        - Key: Name
+          Value: Sample 
+      SecurityGroupIds:
+        - sg-c8043781
+      KeyName: 
+        Ref: KeyName
