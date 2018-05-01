@@ -1,0 +1,54 @@
+Metadata: 
+  AWS::CloudFormation::Interface: 
+    ParameterGroups: 
+      - 
+        Label: 
+          default: "Network Configuration"
+        Parameters: 
+          - VPCID
+          - SubnetId
+          - SecurityGroupID
+      - 
+        Label: 
+          default: "Amazon EC2 Configuration"
+        Parameters: 
+          - InstanceType
+          - KeyName
+    ParameterLabels: 
+      VPCID: 
+        default: "Which VPC should this be deployed to?"
+
+Parameters:
+  VPCID: 
+    Type: String
+    Description: Enter a VPC 
+  SubnetId:
+    Type: String 
+    Description: Enter a SubnetID 
+  SecurityGroupID:
+    Type: String 
+    Description: Enter a SecurityGroupID
+  InstanceType:
+    Type: String 
+    Description: Enter a InstanceType
+  KeyName:
+    Type: String 
+    Description: Enter a KeyName 
+
+Resources:
+  Ec2Instance: 
+    Type: "AWS::EC2::Instance"
+    Properties: 
+      ImageId: "ami-6871a115"
+      InstanceType: 
+        Ref: InstanceType
+      SubnetId: 
+        Ref: SubnetId
+      Tags:
+        - Key: Name
+          Value: Sample 
+      SecurityGroupIds:
+        - Ref: SecurityGroupID
+      KeyName: 
+        Ref: KeyName
+  

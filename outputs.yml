@@ -29,7 +29,7 @@ Resources:
         - Key: Name
           Value: Sample 
       SecurityGroupIds:
-        - sg-c8043781
+        - sg-80d272f2
       KeyName: 
         Ref: KeyName
 
@@ -37,5 +37,5 @@ Outputs:
   Ec2InstanceIP:
     Description: IP of EC2 Instance
     Value: 
-      Ref: Ec2Instance
+      Fn::GetAtt: [Ec2Instance, PublicIp]
    

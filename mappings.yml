@@ -1,0 +1,25 @@
+Mappings:
+  AWSAMIs:
+    us-east-1:
+      AMI: ami-6871a115
+      SUBNET: sg-80d272f2
+      SGNAME: 
+        - sg-80d272f2
+    us-east-2:
+      AMI: ami-03291866
+      SUBNET: subnet-dcf4e1b5
+      SGNAME: 
+       - sg-b10a9ed9
+
+Resources:
+  Ec2Instance: 
+    Type: "AWS::EC2::Instance"
+    Properties: 
+      ImageId: !FindInMap [AWSAMIs, !Ref "AWS::Region", AMI]
+      InstanceType: t2.micro
+      SubnetId: !FindInMap [AWSAMIs, !Ref "AWS::Region", SUBNET]
+      Tags:
+        - Key: Name
+          Value: Sample 
+      SecurityGroupIds: !FindInMap [AWSAMIs, !Ref "AWS::Region", SGNAME]
+      KeyName: devops 

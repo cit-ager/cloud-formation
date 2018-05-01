@@ -1,0 +1,6 @@
+ 811  aws cloudformation create-stack --stack-name studentstack --template-body file://network.template.yml 
+  812  aws cloudformation update-stack --stack-name studentstack --template-body file://network.template.yml 
+  997  aws cloudformation create-stack --stack-name ec2 --template-body file://parameters.yml 
+  998  aws cloudformation create-stack --stack-name ec2 --template-body file://parameters.yml  --parameters InstanceTypeParameter=t2.micro,KeyName=devops,Subnets=subnet-fc7ccab6
+  999  aws cloudformation create-stack --stack-name ec2 --template-body file://parameters.yml  --parameters ParameterKey=InstanceTypeParameter,ParameterValue=t2.micro ParameterKey=KeyName,ParameterValue=devops ParameterKey=Subnets,ParameterValue=subnet-fc7ccab6
+

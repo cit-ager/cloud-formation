@@ -1,0 +1,78 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description:
+  Flexible Server Configuration
+
+Parameters:
+  dbRootPassword:
+    Type: String
+    Description: Database root password.
+  secGrpId:
+    Type: String
+    Description: Security Group Id.
+  subNetId:
+    Type: String
+    Description: Subnet Id.
+
+Resources:
+  FlexServer:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      AvailabilityZone: us-east-1a
+      IamInstanceProfile: Backup
+      ImageId: ami-6d1c2007 # CentOS 7 - https://aws.amazon.com/marketplace/pp/B00O7WM7QW/&ref_=_mkt_ste_menu
+      InstanceType: t2.micro
+      KeyName: amazonian
+      SecurityGroupIds: # for VPCs
+        - !Sub ${secGrpId}
+      SubnetId: !Sub ${subNetId}
+      UserData:
+        "Fn::Base64":
+          !Sub |
+            #!/bin/bash -xe
+            yum -y update
+            # Setup cfn-bootstrap
+            cd /opt
+            curl https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz > aws-cfn-bootstrap-latest.tar.gz
+            tar zxvf aws-cfn-bootstrap-latest.tar.gz
+            cd aws-cfn-bootstrap-1.4
+            python setup.py build
+            python setup.py install
+            # Run cfn-init
+            /bin/cfn-init -v --stack ${AWS::StackName} --resource FlexServer --region ${AWS::Region}
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          default:       # The "default" configSet is used when cfn-init is called without -c option
+            - "mariadb"
+        mariadb:         # This is the MariaDB that comes with CentOS Base Repo
+          packages:
+            yum:
+              mariadb-server: []
+          files:
+            /tmp/mariadb_config_stdin.txt:
+              content: !Sub |
+
+                Y
+                ${dbRootPassword}
+                ${dbRootPassword}
+                Y
+                Y
+                Y
+                Y
+              mode: "000600"
+              owner: "root"
+              group: "root"
+          commands:
+            0100_start_mariadb:
+              command: "/bin/systemctl start  mariadb.service"
+            0200_run_secure_script:
+              command: "/bin/mysql_secure_installation < /tmp/mariadb_config_stdin.txt"
+            0300_cleanup:
+              command: "rm -vf /tmp/mariadb_config_stdin.txt"
+          services:
+            sysvinit:
+              mariadb:
+                enabled: true
+                ensureRunning: true
